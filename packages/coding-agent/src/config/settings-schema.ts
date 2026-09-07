@@ -1256,6 +1256,18 @@ export const SETTINGS_SCHEMA = {
 				"Wrap paths and URLs in OSC 8 hyperlinks for terminal-native click-to-open (auto: detect support; off: never; always: unconditional)",
 		},
 	},
+	"tui.fileLinkEditor": {
+		type: "enum",
+		values: ["system", "vscode"] as const,
+		default: "system",
+		ui: {
+			tab: "appearance",
+			group: "Display",
+			label: "File Link Editor",
+			description:
+				"Open terminal file hyperlinks with the system default application or VS Code at the selected line and column",
+		},
+	},
 	"tui.tight": {
 		type: "boolean",
 		default: false,

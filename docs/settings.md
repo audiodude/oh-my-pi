@@ -697,9 +697,12 @@ tui:
 | `images.autoResize`         | boolean | `true`           | Resize large images for model compatibility.                              |
 | `images.blockImages`        | boolean | `false`          | Never send images to providers.                                           |
 | `tui.hyperlinks`            | enum    | `auto`           | `off`, `auto`, `always`.                                                  |
+| `tui.fileLinkEditor`        | enum    | `system`         | `system` uses ordinary file URLs; `vscode` opens local files in VS Code at the linked line and column. Requires a registered `vscode://` URL handler. |
 | `tui.resizeScrollback`      | enum    | `rebuild`        | How a settled width resize refreshes transcript rows kept in terminal scrollback: `append` replays the transcript at the new width below retained history, `rebuild` erases pane scrollback then replays one current-width copy, `preserve` repaints only the viewport. |
 
 For a custom status line, set `statusLine.preset: custom` and configure `statusLine.leftSegments`, `statusLine.rightSegments`, and `statusLine.segmentOptions`. Include `status` in either segment list to render extension statuses registered through `ctx.ui.setStatus()`, ordered by key and joined inline. Set `statusLine.showHookStatus: false` to suppress the same statuses in the footer.
+
+To open terminal file links in VS Code, run `omp config set tui.fileLinkEditor vscode`, or select **File Link Editor → vscode** in `/settings`. This changes OSC 8 destinations, not the displayed paths; web links are unchanged. The terminal still controls the click modifier (Ctrl-click in Ghostty on Linux). Use `omp config set tui.fileLinkEditor system` to restore the system opener. This is independent of `EDITOR` and `VISUAL`.
 
 ### Interaction
 

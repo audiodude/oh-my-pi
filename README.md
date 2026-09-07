@@ -93,6 +93,8 @@ mise use -g github:can1357/oh-my-pi
 
 macOS · Linux · Windows · bun ≥ 1.3.14
 
+**VS Code file links:** run `omp config set tui.fileLinkEditor vscode` to open terminal file hyperlinks at their line and column in VS Code. Requires VS Code's URL handler; `system` restores the default opener. See [terminal settings](docs/settings.md#appearance-and-terminal).
+
 ### Shell completions
 
 `omp` generates its own completion scripts for **bash**, **zsh**, and **fish** from the live command/flag metadata, so they never drift from the actual CLI. Subcommands, flags, and enum values complete statically; model names (`--model`, `--smol`, `--slow`, `--plan`) resolve against the bundled model catalog and `--resume` against your on-disk sessions.
