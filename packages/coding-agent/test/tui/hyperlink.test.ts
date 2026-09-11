@@ -58,6 +58,7 @@ afterAll(() => {
 
 afterEach(() => {
 	settings.clearOverride("tui.hyperlinks");
+	settings.clearOverride("tui.fileLinkEditor");
 	if (ORIGINAL_NO_COLOR === undefined) {
 		delete Bun.env.NO_COLOR;
 	} else {
@@ -134,6 +135,23 @@ describe("isHyperlinkEnabled", () => {
 });
 
 describe("fileHyperlink", () => {
+	it("opens encoded paths at the selected VS Code line and column", () => {
+		setHyperlinkMode("always");
+		settings.override("tui.fileLinkEditor", "vscode");
+		const filePath = path.resolve("/workspace/my file#1?.ts");
+		const uri = extractLinkUri(fileHyperlink(filePath, "source", { line: 42, col: 5 }));
+		expect(uri).toBe(`vscode://file${url.pathToFileURL(filePath).pathname}:42:5`);
+	});
+
+	it("opens VS Code files without a position and handles column-only locations", () => {
+		setHyperlinkMode("always");
+		settings.override("tui.fileLinkEditor", "vscode");
+		const filePath = path.resolve("source.ts");
+		const target = `vscode://file${url.pathToFileURL(filePath).pathname}`;
+		expect(extractLinkUri(fileHyperlink(filePath, "source"))).toBe(target);
+		expect(extractLinkUri(fileHyperlink(filePath, "source", { col: 5 }))).toBe(`${target}:1:5`);
+	});
+
 	it("returns plain text when hyperlinks are disabled (mode=off)", () => {
 		setHyperlinkMode("off");
 		const filePath = path.resolve("/Users/foo/bar.ts");
@@ -401,6 +419,15 @@ describe("resource links in chat markdown", () => {
 	afterEach(async () => {
 		terminalCaps.setTerminalHyperlinks(originalHyperlinks);
 		await fs.rm(tempDir, { recursive: true, force: true });
+	});
+
+	it("preserves line and column when resolving local Markdown links for VS Code", async () => {
+		settings.override("tui.fileLinkEditor", "vscode");
+		const file = path.join(tempDir, "my file.ts");
+		await Bun.write(file, "export const value = 1;");
+		const href = "my%20file.ts?line=42&col=5";
+		const targets = await resolveMarkdownLinkTargets([`[Source](${href})`], { cwd: tempDir });
+		expect(targets.get(href)).toBe(`vscode://file${url.pathToFileURL(file).pathname}:42:5`);
 	});
 
 	it("expands labeled, reference, and table links to real local and artifact files", async () => {

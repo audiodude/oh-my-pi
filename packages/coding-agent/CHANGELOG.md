@@ -104,6 +104,9 @@
 ### Fixed
 
 - Fixed GPT-6 Astra requiring `/extended-context` for its full context window: it now keeps the documented 1.05M-token window with the setting on or off, and explicit per-model `contextWindow` overrides still win.
+### Added
+
+- Added `tui.fileLinkEditor` to open terminal file hyperlinks in VS Code at their line and column; ordinary system file URLs remain the default.
 
 ## [18.1.12] - 2026-09-06
 
