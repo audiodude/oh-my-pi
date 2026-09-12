@@ -45,11 +45,18 @@ function buildLinkId(uri: string): string {
 	return (h >>> 0).toString(16).padStart(8, "0");
 }
 
-/** Build a properly encoded `file://` URI with optional line/col query params. */
-function buildFileUri(filePath: string, opts?: { line?: number; col?: number }): string {
-	const uri = url.pathToFileURL(filePath);
+/** Build an encoded file hyperlink, optionally targeting VS Code's editor protocol. */
+function buildFileUri(filePath: string, opts?: { line?: number; col?: number }, suffix = ""): string {
+	const fileUri = url.pathToFileURL(filePath);
+	const uri = suffix ? new URL(fileUri.href + suffix) : fileUri;
 	if (opts?.line !== undefined) uri.searchParams.set("line", String(opts.line));
 	if (opts?.col !== undefined) uri.searchParams.set("col", String(opts.col));
+	if (isSettingsInitialized() && settings.get("tui.fileLinkEditor") === "vscode") {
+		const line = uri.searchParams.get("line");
+		const col = uri.searchParams.get("col");
+		const position = line !== null || col !== null ? `:${line ?? 1}${col !== null ? `:${col}` : ""}` : "";
+		return `vscode://file${uri.pathname}${position}${uri.hash}`;
+	}
 	return uri.href;
 }
 
@@ -164,11 +171,11 @@ export function urlHyperlinkAlways(url: string, displayText: string): string {
  * Returns `displayText` unchanged when hyperlinks are disabled or when
  * the text already contains an OSC 8 sequence (prevents double-wrapping).
  * Relative paths resolve against the current working directory before URI
- * encoding so the OSC 8 target is always a valid `file://` URL.
+ * encoding; `tui.fileLinkEditor` chooses a system file URL or VS Code editor URL.
  *
  * @param filePath - Filesystem path
  * @param displayText - Text to render as the hyperlink anchor (may contain ANSI codes)
- * @param opts - Optional line/col position appended as `?line=N&col=M` query params
+ * @param opts - Optional line/col position for the selected editor
  */
 export function fileHyperlink(filePath: string, displayText: string, opts?: { line?: number; col?: number }): string {
 	return wrapHyperlink(buildFileUri(filePath, opts), displayText);
@@ -219,7 +226,7 @@ export async function resolveMarkdownLinkTargets(
 				}
 				const stat = await fs.stat(sourcePath);
 				if (!stat.isFile() && !stat.isDirectory()) return;
-				targets.set(href, buildFileUri(sourcePath) + suffix);
+				targets.set(href, buildFileUri(sourcePath, undefined, suffix));
 			} catch {
 				// A model-authored link may be incomplete, stale, or outside the resource root.
 			}
