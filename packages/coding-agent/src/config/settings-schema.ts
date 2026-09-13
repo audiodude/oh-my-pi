@@ -1290,6 +1290,18 @@ export const SETTINGS_SCHEMA = {
 				"Capture mouse clicks in the main session so live subagent cards and HUD rows focus on click, with a hover highlight on the target. Native text selection becomes Shift+drag and wheel scroll becomes Shift+wheel while on",
 		},
 	},
+	"tui.fileLinkEditor": {
+		type: "enum",
+		values: ["system", "vscode"] as const,
+		default: "system",
+		ui: {
+			tab: "appearance",
+			group: "Display",
+			label: "File Link Editor",
+			description:
+				"Open terminal file hyperlinks with the system default application or VS Code at the selected line and column",
+		},
+	},
 	"tui.tight": {
 		type: "boolean",
 		default: false,
