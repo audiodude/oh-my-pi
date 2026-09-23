@@ -45,7 +45,7 @@ import { loadCapability } from "../discovery";
 import { AgentStorage } from "../session/agent-storage";
 import { type CompactionMethod, DEFAULT_COMPACTION_METHOD_ORDER } from "../session/compaction-methods";
 import MODEL_PRIO from "../priority.json" with { type: "json" };
-import { applyHyperlinkSetting } from "@oh-my-pi/pi-tui/render/hyperlink";
+import { applyFileLinkEditorSetting, applyHyperlinkSetting } from "@oh-my-pi/pi-tui/render/hyperlink";
 import {
 	setFeedModelBadgeEnabled,
 	setInlineImageMaxColumns,
@@ -3421,6 +3421,7 @@ const SETTING_HOOKS: Partial<Record<SettingPath, SettingHook<any>>> = {
 	// track it the same instant path/resource links do. Runtime `/settings` edits
 	// also go through the selector controller to invalidate and repaint live views.
 	"tui.hyperlinks": value => applyHyperlinkSetting(value),
+	"tui.fileLinkEditor": value => applyFileLinkEditorSetting(value),
 	"display.hideToolActivity": value => {
 		if (typeof value === "boolean") setChatTranscriptDisplayPreferences({ hideToolActivity: value });
 	},

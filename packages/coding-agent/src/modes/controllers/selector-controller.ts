@@ -75,7 +75,7 @@ import { AskTool, type AskToolInput } from "../../tools/ask";
 import { type AskToolDetails } from "@oh-my-pi/pi-tui/tools/ask";
 import { sanitizeDisplayWarnings, shortenPath } from "@oh-my-pi/pi-tui/render/render-utils";
 import { ToolAbortError } from "../../tools/tool-errors";
-import { applyHyperlinkSetting } from "@oh-my-pi/pi-tui/render/hyperlink";
+import { applyFileLinkEditorSetting, applyHyperlinkSetting } from "@oh-my-pi/pi-tui/render/hyperlink";
 import { captureBrowserSession } from "../../utils/browser-session";
 import { copyToClipboard } from "../../utils/clipboard";
 import { openPath } from "../../utils/open";
@@ -765,6 +765,12 @@ export class SelectorController {
 				break;
 			case "tui.hyperlinks":
 				applyHyperlinkSetting();
+				this.ctx.statusLine.invalidate();
+				this.ctx.ui.invalidate();
+				this.ctx.ui.requestRender();
+				break;
+			case "tui.fileLinkEditor":
+				applyFileLinkEditorSetting(value);
 				this.ctx.statusLine.invalidate();
 				this.ctx.ui.invalidate();
 				this.ctx.ui.requestRender();
