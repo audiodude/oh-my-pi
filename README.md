@@ -605,7 +605,7 @@ bun dev
 
 `bun setup` installs Bun workspaces and builds `@oh-my-pi/pi-natives`. Re-run `bun run build:native` after changing Rust crates or `packages/natives`.
 
-For this fork's Linux x64 standalone build, use the pinned `nightly-2026-08-12` Rust toolchain with `OMP_NATIVE_BUILD_BACKEND=cargo bun run build:native`, then `bun scripts/ci-release-build-binaries.ts --targets linux-x64`. Verify `packages/coding-agent/binaries/omp-linux-x64 --version` and `--smoke-test` before installation. Bytecode compilation is disabled because Bun 1.4.0's bytecode bundle fails at startup with an `import.meta` syntax error; the standalone executable uses ordinary compiled JavaScript instead. Back up `~/.bun/bin/omp` before replacing it; `omp update` installs stock upstream builds without this fork's manual file-link override.
+For this fork's Linux x64 standalone build, use the pinned `nightly-2026-08-12` Rust toolchain with `OMP_NATIVE_BUILD_BACKEND=cargo bun run build:native`, then `bun scripts/ci-release-build-binaries.ts --targets linux-x64`. Ensure that toolchain's `bin` directory precedes system Rust binaries on `PATH`; a standalone system `cargo` does not honor `rust-toolchain.toml`. Verify `packages/coding-agent/binaries/omp-linux-x64 --version` and `--smoke-test` before installation. The standalone ESM bytecode build is verified with Bun 1.4.2. Back up `~/.bun/bin/omp` before replacing it; `omp update` installs stock upstream builds without this fork's manual file-link override.
 
 Nix users get the pinned Bun and Rust toolchains plus all native build dependencies:
 
