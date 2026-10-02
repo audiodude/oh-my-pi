@@ -14,7 +14,7 @@ import { setChatTranscriptDisplayPreferences } from "@oh-my-pi/pi-tui/chat/displ
 import { setEditorGapComposerShape } from "@oh-my-pi/pi-tui/prompt/editor-top-gap";
 import { setEmojiAutocompleteEnabled } from "@oh-my-pi/pi-tui/prompt/prompt-action-autocomplete";
 import { WORD_COMPLETION_METHODS } from "@oh-my-pi/pi-tui/prompt/word-completion";
-import { applyHyperlinkSetting } from "@oh-my-pi/pi-tui/render/hyperlink";
+import { applyFileLinkEditorSetting, applyHyperlinkSetting } from "@oh-my-pi/pi-tui/render/hyperlink";
 import { setInlineImageMaxColumns, setInlineImageMaxRows } from "@oh-my-pi/pi-tui/render/render-utils";
 import { setShimmerMode } from "@oh-my-pi/pi-tui/theme/shimmer";
 import { setAutoThemeMapping, setColorBlindMode, setSymbolPreset } from "@oh-my-pi/pi-tui/theme/theme";
@@ -515,6 +515,21 @@ export const cfgTuiMouse = register({
 		},
 	},
 });
+
+export const cfgTuiFileLinkEditor = register({
+	id: "tui.fileLinkEditor",
+	type: "enum",
+	values: ["system", "vscode"] as const,
+	default: "system",
+	ui: {
+		tab: "appearance",
+		group: "Display",
+		label: "File Link Editor",
+		description:
+			"Open terminal file hyperlinks with the system default application or VS Code at the selected line and column",
+	},
+});
+effect(cfgTuiFileLinkEditor, applyFileLinkEditorSetting);
 
 export const cfgTuiTight = register({
 	id: "tui.tight",

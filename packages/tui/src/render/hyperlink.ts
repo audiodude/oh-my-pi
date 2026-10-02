@@ -69,9 +69,26 @@ export function fileUriForTerminal(
 	return `vscode://file${encodedPath.startsWith("/") ? "" : "/"}${encodedPath}${position}`;
 }
 
-/** Build the OSC 8 target for `filePath` on this terminal. */
+/**
+ * File hyperlinks normally target the detected terminal. `tui.fileLinkEditor`
+ * can force a specific editor so, e.g., a VS Code `vscode://file` link is emitted
+ * from a terminal that is not VS Code's own. `undefined` follows terminal detection.
+ */
+let fileLinkEditorOverride: TerminalId | undefined;
+
+/**
+ * Force file hyperlinks to target a specific editor regardless of the detected
+ * terminal, or clear the override. Pushed from the coding-agent `tui.fileLinkEditor`
+ * setting the same way {@link applyHyperlinkSetting} pushes `tui.hyperlinks`.
+ * Accepts the raw (unvalidated) setting value; anything but `"vscode"` clears it.
+ */
+export function applyFileLinkEditorSetting(target?: unknown): void {
+	fileLinkEditorOverride = target === "vscode" ? "vscode" : undefined;
+}
+
+/** Build the OSC 8 target for `filePath` on this terminal (or the forced editor). */
 function buildFileUri(filePath: string, opts?: { line?: number; col?: number }): string {
-	return fileUriForTerminal(filePath, opts, TERMINAL.id);
+	return fileUriForTerminal(filePath, opts, fileLinkEditorOverride ?? TERMINAL.id);
 }
 
 /**
