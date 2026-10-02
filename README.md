@@ -607,6 +607,8 @@ bun dev
 
 For this fork's Linux x64 standalone build, use the pinned `nightly-2026-08-12` Rust toolchain with `OMP_NATIVE_BUILD_BACKEND=cargo bun run build:native`, then `bun scripts/ci-release-build-binaries.ts --targets linux-x64`. Ensure that toolchain's `bin` directory precedes system Rust binaries on `PATH`; a standalone system `cargo` does not honor `rust-toolchain.toml`. Verify `packages/coding-agent/binaries/omp-linux-x64 --version` and `--smoke-test` before installation. The standalone ESM bytecode build is verified with Bun 1.4.2. Back up `~/.bun/bin/omp` before replacing it; `omp update` installs stock upstream builds without this fork's manual file-link override.
 
+Rust verification uses `bun run test:rs` and requires `cargo-nextest` on `PATH`, alongside the pinned nightly toolchain. For the 18.4.10 fork refresh, all 87 surviving changed/custom TypeScript test files passed in separate processes, all 16 workspace type checks passed, and the Rust workflow passed 3,089 tests plus one runnable doctest (six Rust tests skipped). A combined TypeScript invocation exposed a settings-overlay GC isolation failure that passed file-local verification; it is not claimed as a passing combined suite. The compiled worker smoke and the actual settings dialog's system/VS Code editor toggle also passed.
+
 Nix users get the pinned Bun and Rust toolchains plus all native build dependencies:
 
 ```sh
