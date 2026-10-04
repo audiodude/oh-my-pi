@@ -3,6 +3,7 @@ import * as path from "node:path";
 import * as url from "node:url";
 import { getMarkdownTheme, initTheme } from "@oh-my-pi/pi-tui/theme";
 import {
+	applyFileLinkEditorSetting,
 	applyHyperlinkSetting,
 	fileHyperlink,
 	fileUriForTerminal,
@@ -42,6 +43,7 @@ function setHyperlinkMode(mode: "off" | "auto" | "always"): void {
 
 afterEach(() => {
 	applyHyperlinkSetting("auto");
+	applyFileLinkEditorSetting("system");
 	if (ORIGINAL_NO_COLOR === undefined) {
 		delete Bun.env.NO_COLOR;
 	} else {
@@ -208,6 +210,26 @@ describe("fileHyperlink", () => {
 		const result = fileHyperlink(filePath, colored);
 		expect(result).toContain(colored);
 		expect(isHyperlinked(result)).toBe(true);
+	});
+});
+
+describe("tui.fileLinkEditor override", () => {
+	const filePath = path.resolve("/Users/foo/bar.ts");
+
+	it("forces vscode://file targets regardless of the detected terminal", () => {
+		setHyperlinkMode("always");
+		applyFileLinkEditorSetting("vscode");
+		const uri = extractLinkUri(fileHyperlink(filePath, "bar.ts", { line: 42, col: 7 }));
+		expect(uri).toBe(`vscode://file${filePath}:42:7`);
+	});
+
+	it("restores system file URLs when cleared back to system", () => {
+		setHyperlinkMode("always");
+		applyFileLinkEditorSetting("vscode");
+		applyFileLinkEditorSetting("system");
+		const uri = extractLinkUri(fileHyperlink(filePath, "bar.ts"));
+		expect(uri).toMatch(/^file:\/\//u);
+		expect(uri).not.toMatch(/^vscode:/u);
 	});
 });
 
