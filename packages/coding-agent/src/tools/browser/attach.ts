@@ -293,31 +293,40 @@ async function probeCdpAt(port: number, signal?: AbortSignal): Promise<boolean> 
 }
 
 /**
- * Resolve a distro wrapper script to its exec target (e.g.
- * /opt/google/chrome/google-chrome is bash ending in
- * `exec -a "$0" "$HERE/chrome" "$@"` with $HERE = dirname of the wrapper).
- * Scans line-by-line for the final `exec ... $HERE/...` command so helper
- * invocations are never mistaken for the application. Returns null for
- * binaries and wrappers without an exec command. Size-guarded so real
- * binaries are never read into memory.
+ * Follow distro launcher chains through static absolute or $HERE-relative exec
+ * targets, without evaluating shell code. Size-guarded so browser binaries are
+ * never read into memory; repeated paths terminate cyclic wrapper chains.
  */
 async function resolveWrapperTarget(wrapperPath: string): Promise<string | null> {
 	if (process.platform !== "linux") return null;
-	const stat = await fs.stat(wrapperPath).catch(() => null);
-	if (!stat || !stat.isFile() || stat.size > 65_536) return null;
-	const content = await Bun.file(wrapperPath)
-		.text()
-		.catch(() => null);
-	if (!content || content.charCodeAt(0) === 0x7f) return null;
-	let target: string | null = null;
+	const visited = new Set<string>();
+	let current = wrapperPath;
 	const execRegex = /^\s*exec\s+(?:-a\s+(?:"[^"]*"|'[^']*'|\S+)\s+)?["']?\$(?:HERE|\{HERE\})\/([^\s"'`;}]+)/;
-	for (const line of content.split("\n")) {
-		const match = execRegex.exec(line);
-		if (match?.[1]) target = match[1];
+	const absoluteExecRegex =
+		/^\s*exec\s+(?:-a\s+(?:"[^"]*"|'[^']*'|\S+)\s+)?(?:"(\/[^"$`]+)"|'(\/[^']+)'|(\/[^\s"'`;$]+))(?=\s|$)/;
+	while (!visited.has(current)) {
+		visited.add(current);
+		const stat = await fs.stat(current).catch(() => null);
+		if (!stat || !stat.isFile() || stat.size > 65_536) break;
+		const content = await Bun.file(current)
+			.text()
+			.catch(() => null);
+		if (!content || content.charCodeAt(0) === 0x7f) break;
+		let target: string | null = null;
+		for (const line of content.split("\n")) {
+			const relativeMatch = execRegex.exec(line);
+			if (relativeMatch?.[1]) {
+				target = path.join(path.dirname(current), relativeMatch[1]);
+				continue;
+			}
+			const absoluteMatch = absoluteExecRegex.exec(line);
+			const absoluteTarget = absoluteMatch?.[1] ?? absoluteMatch?.[2] ?? absoluteMatch?.[3];
+			if (absoluteTarget) target = absoluteTarget;
+		}
+		if (!target) break;
+		current = await fs.realpath(target).catch(() => target);
 	}
-	if (!target) return null;
-	const joined = path.join(path.dirname(wrapperPath), target);
-	return fs.realpath(joined).catch(() => joined);
+	return current === wrapperPath ? null : current;
 }
 
 /**

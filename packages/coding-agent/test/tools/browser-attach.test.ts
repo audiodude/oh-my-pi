@@ -436,9 +436,10 @@ describe("pickElectronTarget", () => {
 		}
 	});
 
-	test.skipIf(process.platform !== "linux")("reuses Chromium launched through a distro wrapper", async () => {
+	test.skipIf(process.platform !== "linux")("reuses Chromium launched through nested distro wrappers", async () => {
 		const root = await fs.mkdtemp(path.join(os.tmpdir(), "omp-browser-wrapper-"));
 		const wrapper = path.join(root, "google-chrome");
+		const launcher = path.join(root, "google-chrome-stable");
 		const target = path.join(root, "chrome");
 		const profile = path.join(root, "profile");
 		const cdp = Bun.serve({ hostname: "127.0.0.1", port: 0, fetch: () => new Response("{}") });
@@ -446,9 +447,11 @@ describe("pickElectronTarget", () => {
 		await fs.chmod(target, 0o755);
 		await Bun.write(wrapper, '#!/bin/bash\nHERE="$(dirname "$0")"\nexec -a "$0" "$HERE/chrome" "$@"\n');
 		await fs.chmod(wrapper, 0o755);
+		await Bun.write(launcher, `#!/bin/bash\nexec "${wrapper}" "$@"\n`);
+		await fs.chmod(launcher, 0o755);
 		const child = Bun.spawn(
 			[
-				wrapper,
+				launcher,
 				"--eval",
 				'process.stdout.write("ready\\n"); await Bun.stdin.text()',
 				`--user-data-dir=${profile}`,
@@ -460,7 +463,7 @@ describe("pickElectronTarget", () => {
 		await readiness.read();
 		readiness.releaseLock();
 		try {
-			expect(await findReusableCdp(wrapper, { appArgs: [`--user-data-dir=${profile}`] })).toEqual({
+			expect(await findReusableCdp(launcher, { appArgs: [`--user-data-dir=${profile}`] })).toEqual({
 				cdpUrl: `http://127.0.0.1:${cdp.port}`,
 				pid: child.pid,
 			});

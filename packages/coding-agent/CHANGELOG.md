@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added `tui.fileLinkEditor` to open terminal file hyperlinks in VS Code at their line and column; ordinary system file URLs remain the default.
+
+### Changed
+
+- Updated the custom fork to stable OMP 18.7.0 while retaining VS Code file-link settings and Arch Chrome attachment fixes.
+
+### Fixed
+
+- Fixed attaching to an existing Chrome profile through nested Linux distribution launchers, including Arch's `google-chrome-stable`.
+
 ## [18.7.0] - 2026-10-06
 
 ### Added

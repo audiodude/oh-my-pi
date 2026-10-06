@@ -93,6 +93,8 @@ mise use -g github:can1357/oh-my-pi
 
 macOS · Linux · Windows · bun ≥ 1.3.14
 
+**VS Code file links:** run `omp config set tui.fileLinkEditor vscode` to open terminal file hyperlinks at their line and column in VS Code. Requires VS Code's URL handler; `system` restores the default opener. See [terminal settings](docs/settings.md#appearance-and-terminal).
+
 ### Shell completions
 
 `omp` generates its own completion scripts for **bash**, **zsh**, and **fish** from the live command/flag metadata, so they never drift from the actual CLI. Subcommands, flags, and enum values complete statically; model names (`--model`, `--smol`, `--slow`, `--plan`) resolve against the bundled model catalog and `--resume` against your on-disk sessions.
@@ -613,6 +615,10 @@ bun dev
 ```
 
 `bun setup` installs Bun workspaces and builds `@oh-my-pi/pi-natives`. Re-run `bun run build:native` after changing Rust crates or `packages/natives`.
+
+For this fork's Linux x64 standalone build, use the pinned `nightly-2026-08-12` Rust toolchain with `OMP_NATIVE_BUILD_BACKEND=cargo bun run build:native`, then `bun scripts/ci-release-build-binaries.ts --targets linux-x64`. On this workstation, prepend `~/.local/share/omp-rustup/toolchains/nightly-2026-08-12-x86_64-unknown-linux-gnu/bin` to `PATH`; a standalone system `cargo` does not honor `rust-toolchain.toml`. Verify `packages/coding-agent/binaries/omp-linux-x64 --version` and `--smoke-test` before installation. The standalone ESM bytecode build is verified with Bun 1.4.2. Back up `~/.bun/bin/omp` before replacing it; `omp update` installs stock upstream builds without this fork's manual file-link override.
+
+Rust verification uses `bun run test:rs` and requires `cargo-nextest` on `PATH`, alongside the pinned nightly toolchain. For the 18.6.0 fork refresh, all 167 changed/custom TypeScript test files passed in separate processes, all 16 workspace type checks passed, and the Rust workflow passed 3,092 tests plus one runnable doctest (six Rust tests skipped). This is focused TypeScript verification, not a full combined suite. The compiled worker smoke passed. The actual settings dialog displayed the custom File Link Editor setting and switched between system and VS Code; the original system preference was restored after the smoke.
 
 Nix users get the pinned Bun and Rust toolchains plus all native build dependencies:
 

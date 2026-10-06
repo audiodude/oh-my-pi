@@ -361,6 +361,7 @@ import {
 	cfgStatusLineTransparent,
 	cfgSymbolPreset,
 	cfgTerminalShowImages,
+	cfgTuiFileLinkEditor,
 	cfgTuiHyperlinks,
 	cfgTuiImeSafeCursor,
 	cfgTuiMaxInlineImages,
@@ -436,6 +437,7 @@ const cfgLiveUiSettings = combine({
 	"tui.textSizing": cfgTuiTextSizing,
 	"tui.tight": cfgTuiTight,
 	"tui.hyperlinks": cfgTuiHyperlinks,
+	"tui.fileLinkEditor": cfgTuiFileLinkEditor,
 	"tui.titleState": cfgTuiTitleState,
 	"tui.titleSpinner": cfgTuiTitleSpinner,
 	"statusLine.preset": cfgStatusLinePreset,
@@ -3535,8 +3537,8 @@ export class InteractiveMode implements InteractiveModeContext {
 			this.ui.invalidate();
 			this.ui.requestRender();
 		}
-		if (any("tui.hyperlinks")) {
-			// The tui.hyperlinks effect already re-applied the flag; repaint cached rows.
+		if (any("tui.hyperlinks", "tui.fileLinkEditor")) {
+			// The hyperlink effects already re-applied the policy; repaint cached rows.
 			this.statusLine.invalidate();
 			this.ui.invalidate();
 			this.ui.requestRender();
