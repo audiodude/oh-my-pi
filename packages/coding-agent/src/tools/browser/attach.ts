@@ -441,10 +441,6 @@ export async function findReusableCdp(
 	return null;
 }
 
-export function shouldPreserveConnectedBrowserFocus(target?: string): boolean {
-	return !target;
-}
-
 export interface PickTargetOptions {
 	matcher?: string;
 	preferVisible?: boolean;
