@@ -8,11 +8,12 @@
 
 ### Changed
 
-- Updated the custom fork to stable OMP 18.16.0 while retaining VS Code file-link settings and Arch Chrome attachment fixes.
+- Updated the custom fork to stable OMP 18.18.0 while retaining VS Code file-link settings and Arch Chrome attachment fixes.
 
 ### Fixed
 
 - Fixed attaching to an existing Chrome profile through nested Linux distribution launchers, including Arch's `google-chrome-stable`.
+
 ## [18.18.0] - 2026-11-07
 
 ### Added
