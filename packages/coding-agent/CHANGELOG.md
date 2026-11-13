@@ -8,7 +8,7 @@
 
 ### Changed
 
-- Updated the custom fork to stable OMP 18.19.0 while retaining VS Code file-link settings and Arch Chrome attachment fixes.
+- Updated the custom fork to stable OMP 18.20.0 while retaining VS Code file-link settings and Arch Chrome attachment fixes.
 
 ### Fixed
 
