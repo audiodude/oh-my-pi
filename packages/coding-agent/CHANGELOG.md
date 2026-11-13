@@ -13,6 +13,7 @@
 ### Fixed
 
 - Fixed attaching to an existing Chrome profile through nested Linux distribution launchers, including Arch's `google-chrome-stable`.
+
 ## [18.20.0] - 2026-11-12
 
 ### Breaking Changes
